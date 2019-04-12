@@ -1,0 +1,21 @@
+.profile {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.profile_bg {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  background: linear-gradient(to bottom, #1c222e 0, #333d54 100%);
+}
+
+.fab {
+  margin-top: 90px;
+  z-index: 3;
+  color: white;
+  bottom: 10rem;
+  right: 10rem;
+  position: fixed;
+}

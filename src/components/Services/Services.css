@@ -1,0 +1,11 @@
+.first_page {
+    color: red;
+    height: 100vh;
+    z-index: 200;
+    position: relative;
+}
+
+.first_page p {
+    bottom: 0;
+    position: relative;
+}
