@@ -66,11 +66,14 @@
 }
 
 @media (max-width: 768px) {
-  .toolbar_navigation-items {
+  .toolbar__toggle-button {
     display: none;
   }
+  .toolbar_navigation-items {
+    margin-right: 0rem;
+  }
   .toolbar__logo {
-    margin-left: 1rem;
+    margin-left: 0rem;
   }
 }
 

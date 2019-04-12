@@ -68,8 +68,7 @@ class Profile extends Component {
                   <MdClose style={{ fontSize: 30 }} nativeColor="black" />
                 }
                 backgroundColor="#FCA311"
-                onClick={this.logout}
-                // () => this.setState({ isOpen: !this.state.isOpen })
+                onClick={() => this.setState({ isOpen: !this.state.isOpen })}
                 size={56}
               />
             </FloatingMenu>

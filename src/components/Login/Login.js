@@ -12,6 +12,7 @@ import fire from "../../db/fire";
 import { root } from "postcss";
 import { underline } from "ansi-colors";
 import PrimaryButton from "../Widgets/PrimaryButton";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const styles = theme => ({
   container: {
@@ -77,8 +78,9 @@ class Login extends React.Component {
     this.handleRequest = this.handleRequest.bind(this);
     this.handleClickOpen = this.handleClickOpen.bind(this);
     this.handleClose = this.handleClose.bind(this);
-
+    this.proceed = this.proceed.bind(this);
     this.changeFormType = this.changeFormType.bind(this);
+    this.signUp = this.signUp.bind(this);
     this.state = {
       open: true,
       email: "",
@@ -87,7 +89,12 @@ class Login extends React.Component {
       btnOneText: "sign up",
       btnTwoText: "forgot password?",
       formType: "login",
-      errorMSG: ""
+      errorMSG: "",
+      emailLabel: "Email/Username",
+      usernameError: false,
+      usernameErrorTxt: "",
+      cleared: false,
+      loading: false
     };
   }
 
@@ -97,44 +104,78 @@ class Login extends React.Component {
   };
 
   handleClose = () => {
-    this.setState({ open: false });
+    this.setState({ open: false, loading: false });
     this.props.action();
   };
 
+  signUp() {
+    fire
+      .auth()
+      .signInWithEmailAndPassword(this.state.email, this.state.password)
+      .then(u => {
+        this.proceed();
+      })
+      .catch(error => {
+        console.log(error.message);
+
+        this.setState({ errorMSG: error.message, loading: false });
+      });
+  }
+
   handleRequest(e) {
     e.preventDefault();
+    this.setState({ loading: true });
     console.log("worksss");
+
     switch (this.state.formType) {
       case "login":
         {
-          fire
-            .auth()
-            .signInWithEmailAndPassword(this.state.email, this.state.password)
-            .then(u => {
-              this.props.proceed();
-            })
-            .catch(error => {
-              console.log(error.message);
-
-              this.setState({ errorMSG: error.message });
-            });
+          if (!this.state.email.includes("@")) {
+            fire
+              .firestore()
+              .collection("usernames")
+              .where("username", "==", this.state.email)
+              .get()
+              .then(qSnap => {
+                if (!qSnap.empty) {
+                  qSnap.forEach(snap => {
+                    console.log(snap.data().email);
+                    this.state.email = snap.data().email;
+                  });
+                }
+                this.signUp();
+              });
+          } else {
+            this.signUp();
+          }
         }
         break;
       case "sign up":
         {
-          fire
-            .auth()
-            .createUserWithEmailAndPassword(
-              this.state.email,
-              this.state.password
-            )
-            .then(u => {
-              this.props.proceed();
-            })
-            .catch(error => {
-              console.log(error.message);
-              this.setState({ errorMSG: error.message });
-            });
+          if (this.state.cleared) {
+            fire
+              .auth()
+              .createUserWithEmailAndPassword(
+                this.state.email,
+                this.state.password
+              )
+              .then(u => {
+                fire
+                  .firestore()
+                  .collection("usernames")
+                  .add({
+                    username: this.state.username,
+                    email: this.state.email
+                  });
+                this.proceed();
+              })
+              .catch(error => {
+                console.log(error.message);
+                this.setState({ errorMSG: error.message, loading: false });
+              });
+          } else {
+            this.setState({ loading: false });
+          }
         }
         break;
       case "forgot password?":
@@ -142,18 +183,57 @@ class Login extends React.Component {
           fire
             .auth()
             .sendPasswordResetEmail(this.state.email)
-            .then(u => {})
+            .then(u => {
+              this.setState({
+                formType: "login",
+                errorMSG: "A password reset link has been sent to your email",
+                loading: false
+              });
+            })
             .catch(error => {
               console.log(error.message);
-              this.setState({ errorMSG: error.message });
+              this.setState({ errorMSG: error.message, loading: false });
             });
         }
         break;
     }
   }
 
+  proceed() {
+    this.setState({ open: false, loading: false });
+    this.props.proceed();
+  }
+
   handleChange(e) {
-    this.setState({ [e.target.name]: e.target.value });
+    if (e.target.name == "username" && e.target.value.length === 18) {
+      console.log("max length");
+    } else if (e.target.name == "username") {
+      this.state.cleared = false;
+      fire
+        .firestore()
+        .collection("usernames")
+        .where("username", "==", e.target.value)
+        .get()
+        .then(qSnap => {
+          if (!qSnap.empty) {
+            console.log("taken");
+            this.setState({
+              usernameError: true,
+              usernameErrorTxt: "Username is taken!",
+              loading: false
+            });
+          } else {
+            this.setState({
+              usernameError: false,
+              usernameErrorTxt: "",
+              cleared: true
+            });
+          }
+        });
+      this.setState({ [e.target.name]: e.target.value });
+    } else {
+      this.setState({ [e.target.name]: e.target.value });
+    }
   }
 
   changeFormType(e) {
@@ -165,7 +245,8 @@ class Login extends React.Component {
           this.setState({
             btnOneText: "sign up",
             btnTwoText: "forgot password?",
-            formType: "login"
+            formType: "login",
+            emailLabel: "Email/Username"
           });
         }
         break;
@@ -174,7 +255,8 @@ class Login extends React.Component {
           this.setState({
             btnOneText: "login",
             btnTwoText: "forgot password?",
-            formType: "sign up"
+            formType: "sign up",
+            emailLabel: "Email"
           });
         }
         break;
@@ -182,7 +264,8 @@ class Login extends React.Component {
         this.setState({
           btnOneText: "login",
           btnTwoText: "sign up",
-          formType: "forgot password?"
+          formType: "forgot password?",
+          emailLabel: "Email"
         });
       }
     }
@@ -191,6 +274,8 @@ class Login extends React.Component {
   render() {
     const { classes } = this.props;
 
+    let isLoading;
+
     let nameTF = (
       <TextField
         margin="dense"
@@ -198,6 +283,8 @@ class Login extends React.Component {
         label="Username"
         type="username"
         name="username"
+        helperText={this.state.usernameErrorTxt}
+        error={this.state.usernameError}
         required
         style={{
           margin: 10
@@ -273,7 +360,7 @@ class Login extends React.Component {
         required
         margin="dense"
         id="email"
-        label="Email"
+        label={this.state.emailLabel}
         type="email"
         name="email"
         fullWidth
@@ -316,6 +403,14 @@ class Login extends React.Component {
       }
     }
 
+    if (this.state.loading) {
+      isLoading = (
+        <CircularProgress
+          style={{ zIndex: 300, color: "#E5E5E5", position: "fixed" }}
+        />
+      );
+    }
+
     return (
       <div>
         <Dialog
@@ -341,13 +436,14 @@ class Login extends React.Component {
                   root: classes.content
                 }}
               >
+                {isLoading}
                 {formBe}
 
                 <p style={{ color: "white" }}>{this.state.errorMSG}</p>
                 <button
                   id="submitBtn"
                   type="submit"
-                  onClick={this.handleRequest.bind}
+                  onClick={this.handleRequest.bind()}
                   style={{
                     background: "none",
                     color: "inherit",
