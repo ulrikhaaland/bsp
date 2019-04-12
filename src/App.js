@@ -15,10 +15,13 @@ import fire from "./db/fire";
 class App extends Component {
   constructor(props) {
     super(props);
+    this.authListener = this.authListener.bind(this);
     this.state = {
       sideDrawerOpen: false,
       toolBarColor: "white",
-      user: {},
+      user: {
+        uid: ""
+      },
       authenticated: false
     };
   }
@@ -28,11 +31,10 @@ class App extends Component {
   }
 
   authListener() {
-    fire.auth().onAuthStateChanged(user => {
-      if (user) {
-        console.log("logged in");
-        this.setState({ user });
-        this.checkAuth();
+    fire.auth().onAuthStateChanged(u => {
+      if (u) {
+        this.setState({ user: u });
+        this.getUser();
       } else {
         this.setState({ user: null });
       }
@@ -50,10 +52,6 @@ class App extends Component {
       sideDrawerOpen: false
     });
   };
-
-  checkAuth() {
-    return this.state.user;
-  }
 
   render() {
     let backDrop;

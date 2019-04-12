@@ -15,18 +15,27 @@
   border-style: none solid none none;
   height: 100vh;
   width: 30vw;
-  border-color: black;
+  border-color: "bdbdbd";
   border-width: 1.5px;
 }
 
 .profile_section {
-  position: fixed;
+  display: inline-block;
+  position: relative;
   margin-top: 102px;
   z-index: 2;
   margin-left: 10px;
   padding-right: 18px;
-  height: 50vh;
+  height: 30vh;
   width: 30vw;
+}
+
+.not_info {
+  height: 110px;
+}
+.profile_info p {
+  font-family: inherit;
+  font-size: 15px;
 }
 
 .person {
@@ -35,6 +44,70 @@
 }
 .settings_btn {
   float: right;
+}
+
+.profile_info {
+  text-align: start;
+}
+
+.border_profile {
+  border-style: solid none none none;
+  border-color: "bdbdbd";
+  border-width: 1.5px;
+}
+
+.choose_game {
+  height: 5vh;
+  display: flex;
+
+  border-style: none none solid none;
+  border-color: "bdbdbd";
+  border-width: 1.5px;
+}
+
+.choose_game_firstsplit {
+  position: relative;
+  width: 15vw;
+  border-style: none solid none none;
+  height: 5vh;
+  border-width: 1.5px;
+  border-color: "bdbdbd";
+}
+
+.choose_game_firstsplit p {
+  color: white;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+.choose_game_secondsplit {
+  position: relative;
+
+  height: 5vh;
+  width: 15vw;
+  color: white;
+}
+
+.choose_game_secondsplit p {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.game_section {
+  display: inline-block;
+  flex-direction: column;
+  position: relative;
+  margin-top: 10px;
+  z-index: 2;
+  margin-left: 10px;
+  padding-right: 18px;
+  height: 70vh;
+  width: 30vw;
 }
 
 .fab {

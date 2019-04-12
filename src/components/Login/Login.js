@@ -167,10 +167,17 @@ class Login extends React.Component {
                     username: this.state.username,
                     email: this.state.email
                   });
-                var user = fire.auth().currentUser;
-                user.updateProfile({
-                  displayName: this.state.username
-                });
+                console.log(u.user.uid);
+                fire
+                  .firestore()
+                  .collection("users")
+                  .doc(u.user.uid)
+                  .set({
+                    name: this.state.username,
+                    email: this.state.email,
+                    description: ""
+                  });
+
                 this.proceed();
               })
               .catch(error => {

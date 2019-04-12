@@ -72,6 +72,9 @@
   .toolbar_navigation-items {
     margin-right: 0rem;
   }
+  .toolbar__logo a {
+    font-size: 3rem;
+  }
   .toolbar__logo {
     margin-left: 0rem;
   }
