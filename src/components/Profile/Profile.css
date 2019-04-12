@@ -1,7 +1,7 @@
 .profile {
   width: 100%;
   height: 100%;
-  text-align: center;
+  position: relative;
 }
 
 .profile_bg {
@@ -9,6 +9,32 @@
   z-index: 1;
   height: 100vh;
   background: linear-gradient(to bottom, #1c222e 0, #333d54 100%);
+}
+
+.left_container {
+  border-style: none solid none none;
+  height: 100vh;
+  width: 30vw;
+  border-color: black;
+  border-width: 1.5px;
+}
+
+.profile_section {
+  position: fixed;
+  margin-top: 102px;
+  z-index: 2;
+  margin-left: 10px;
+  padding-right: 18px;
+  height: 50vh;
+  width: 30vw;
+}
+
+.person {
+  float: left;
+  width: 100px;
+}
+.settings_btn {
+  float: right;
 }
 
 .fab {

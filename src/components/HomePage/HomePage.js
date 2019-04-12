@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import "./HomePage.css";
-import Macbook from "../../images/macbook.png";
+
 import Card from "../Widgets/Card";
 import PrimaryButton from "../Widgets/PrimaryButton";
-import IPhone from "../../images/iphone.png";
-import WhiteBoard from "../../images/whiteboard.jpg";
+
 import AddCirceIcon from "@material-ui/icons/AddCircleOutlineRounded";
 import { NavLink } from "react-router-dom";
 

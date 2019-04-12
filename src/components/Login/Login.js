@@ -108,10 +108,12 @@ class Login extends React.Component {
     this.props.action();
   };
 
-  signUp() {
+  signUp(withName) {
+    let altEmail;
+    withName ? (altEmail = this.state.username) : (altEmail = this.state.email);
     fire
       .auth()
-      .signInWithEmailAndPassword(this.state.email, this.state.password)
+      .signInWithEmailAndPassword(altEmail, this.state.password)
       .then(u => {
         this.proceed();
       })
@@ -125,8 +127,6 @@ class Login extends React.Component {
   handleRequest(e) {
     e.preventDefault();
     this.setState({ loading: true });
-    console.log("worksss");
-
     switch (this.state.formType) {
       case "login":
         {
@@ -140,10 +140,10 @@ class Login extends React.Component {
                 if (!qSnap.empty) {
                   qSnap.forEach(snap => {
                     console.log(snap.data().email);
-                    this.state.email = snap.data().email;
+                    this.state.username = snap.data().email;
                   });
                 }
-                this.signUp();
+                this.signUp(true);
               });
           } else {
             this.signUp();
@@ -167,6 +167,10 @@ class Login extends React.Component {
                     username: this.state.username,
                     email: this.state.email
                   });
+                var user = fire.auth().currentUser;
+                user.updateProfile({
+                  displayName: this.state.username
+                });
                 this.proceed();
               })
               .catch(error => {

@@ -32,6 +32,7 @@ class App extends Component {
       if (user) {
         console.log("logged in");
         this.setState({ user });
+        this.checkAuth();
       } else {
         this.setState({ user: null });
       }
