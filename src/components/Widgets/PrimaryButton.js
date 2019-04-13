@@ -14,9 +14,9 @@ class PrimaryButton extends React.Component {
           style={{
             backgroundColor: "#FCA311",
             color: "#14213D",
-            fontWeight: "bold",
-            zIndex: "100",
 
+            zIndex: "100",
+            fontFamily: "inherit",
             width: this.props.width,
             height: this.props.height,
             fontSize: this.props.fontSize

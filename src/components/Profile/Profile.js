@@ -7,20 +7,20 @@ import {
 } from "react-floating-button-menu";
 import MdAdd from "@material-ui/icons/Add";
 import MdClose from "@material-ui/icons/Clear";
-import NewBetDialog from "../NewBetDialog/NewBetDialog";
+import BetDialog from "./ProfileComponents/Dialogs/BetDialog";
+import PBDialog from "./ProfileComponents/Dialogs/PBDialog";
 import fire from "../../db/fire";
 import SettingsBtn from "@material-ui/icons/Settings";
 import IconButton from "@material-ui/core/IconButton";
 import Person from "../../images/person.svg";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { grey } from "@material-ui/core/colors";
-
+import GameStream from "./ProfileComponents/GameStream";
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isOpen: false,
-      user: {},
+      user: null,
       active: [],
       all: [],
       isActive: true,
@@ -28,13 +28,15 @@ class Profile extends Component {
       desc: "",
       isLoading: true,
       bgFirst: "#FCA311",
-      bgSecond: "#9e9e9e"
+      bgSecond: "#9e9e9e",
+      playbooks: []
     };
     this.returnDialog = this.returnDialog.bind(this);
     this.logout = this.logout.bind(this);
     this.getUser = this.getUser.bind(this);
     this.authListener = this.authListener.bind(this);
     this.setGameBg = this.setGameBg.bind(this);
+    this.openDialog = this.openDialog.bind(this);
   }
 
   componentDidMount() {
@@ -54,9 +56,15 @@ class Profile extends Component {
   }
 
   returnDialog() {
-    if (this.state.isOpen) {
+    if (this.state.isOpen && this.state.playbooks.length > 1) {
       return (
-        <NewBetDialog
+        <BetDialog
+          action={() => this.setState({ isOpen: !this.state.isOpen })}
+        />
+      );
+    } else if (this.state.isOpen) {
+      return (
+        <PBDialog
           action={() => this.setState({ isOpen: !this.state.isOpen })}
         />
       );
@@ -98,6 +106,15 @@ class Profile extends Component {
           this.state.active.push(doc.data());
         });
       });
+    fire
+      .firestore()
+      .collection(`users/${this.state.user.uid}/playbooks`)
+      .get()
+      .then(qSnap => {
+        qSnap.forEach(doc => {
+          this.state.playbooks.push(doc.data());
+        });
+      });
   }
 
   logout(e) {
@@ -133,7 +150,28 @@ class Profile extends Component {
     }
   }
 
+  openDialog() {
+    this.setState({ isOpen: !this.state.isOpen });
+  }
+
   render() {
+    let games;
+
+    let dialog;
+
+    // if(this.state.playbooks.length > 1) {
+    //   dialog =
+    // } else {
+    //   dialog
+    // }
+
+    if (this.state.user !== null) {
+      console.log(this.state.user);
+      games = <GameStream gamePath={`users/${this.state.user.uid}/active`} />;
+    } else {
+      games = <p>32asdasd</p>;
+    }
+
     let loading;
 
     if (this.state.isLoading) {
@@ -186,9 +224,7 @@ class Profile extends Component {
                   <p>History</p>
                 </div>
               </div>
-              <div className="game_section">
-                <p>32asdasd</p>
-              </div>
+              <div className="game_section">{games}</div>
               <FloatingMenu
                 className="fab"
                 slideSpeed={500}
@@ -204,8 +240,7 @@ class Profile extends Component {
                     <MdClose style={{ fontSize: 30 }} nativeColor="black" />
                   }
                   backgroundColor="#FCA311"
-                  onClick={this.logout}
-                  // () => this.setState({ isOpen: !this.state.isOpen })
+                  onClick={() => this.setState({ isOpen: !this.state.isOpen })}
                   size={56}
                 />
               </FloatingMenu>
