@@ -8,27 +8,26 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import fire from "../../../../db/fire";
+import CancelBtn from "@material-ui/icons/Cancel";
 
 const styles = theme => ({
   container: {
     background: "#14213D",
-
-    margin: "auto",
-    width: "fit-content",
-    alignItems: "center"
+    padding: "none",
+    width: 755
   },
-  content: {
-    display: "flex",
-    flexDirection: "column",
-    margin: "auto"
-  },
+  content: {},
   select: {
     color: "#14213D",
     fontSize: 30
   },
   title: {
-    background: "white",
-    fontSize: 30
+    "& h2": {
+      color: "white",
+      fontFamily: "inherit",
+      fontSize: 20,
+      textAlign: "center"
+    }
   },
   underline: {
     "&:hover": {
@@ -107,6 +106,9 @@ class BetDialog extends React.Component {
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
+          style={{
+            borderStyle: "none none solid none"
+          }}
           classes={{
             paper: classes.container
           }}
@@ -117,40 +119,115 @@ class BetDialog extends React.Component {
               root: classes.title
             }}
           >
-            Subscribe
+            New Bet
           </DialogTitle>
           <DialogContent
             classes={{
               root: classes.content
             }}
           >
-            <DialogContentText>
-              To subscribe to this website, please enter your email address
-              here. We will send updates occasionally.
-            </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Email Address"
-              type="email"
-              fullWidth
-            />
-          </DialogContent>
-          <form onSubmit={null}>
-            <DialogActions
-              classes={{
-                root: classes.content
+            <div
+              style={{
+                display: "table",
+                width: "100%",
+                tableLayout: "fixed",
+                height: 46
               }}
             >
-              <Button onClick={this.handleClose} color="primary">
-                Cancel
-              </Button>
-              <Button onClick={this.handleSubmit} color="primary">
-                Subscribe
-              </Button>
-            </DialogActions>
-          </form>
+              <div
+                className="provide_inputs"
+                style={{
+                  position: "relative",
+                  display: "table-cell",
+                  borderStyle: "solid solid solid solid",
+                  borderWidth: 1,
+                  background: "#FCA311"
+                }}
+              >
+                <h2
+                  style={{
+                    position: "relative",
+                    color: "white",
+                    fontFamily: "inherit",
+                    fontSize: 15,
+                    marginTop: "15px",
+                    verticalAlign: "middle",
+                    textAlign: "center"
+                  }}
+                >
+                  Provide Input
+                </h2>
+              </div>
+              <div
+                className="provide_inputs"
+                style={{
+                  position: "relative",
+                  heigth: 50,
+                  display: "table-cell",
+                  textAlign: "center",
+                  borderStyle: "solid solid solid solid",
+                  borderWidth: 1,
+                  background: "#9e9e9e"
+                }}
+              >
+                <h2
+                  style={{
+                    position: "relative",
+                    color: "white",
+                    fontFamily: "inherit",
+                    fontSize: 15,
+                    margin: 0,
+                    marginTop: "15px"
+                  }}
+                >
+                  Connect to game
+                </h2>
+              </div>
+              <div
+                className="provide_inputs"
+                style={{
+                  position: "relative",
+                  heigth: 50,
+                  display: "table-cell",
+                  textAlign: "center",
+                  borderStyle: "solid solid solid solid",
+                  borderWidth: 1,
+                  background: "#9e9e9e"
+                }}
+              >
+                <h2
+                  style={{
+                    position: "relative",
+                    color: "white",
+                    fontFamily: "inherit",
+                    fontSize: 15,
+                    margin: 0,
+                    marginTop: "15px"
+                  }}
+                >
+                  Quick
+                </h2>
+              </div>
+            </div>
+            <form onSubmit={null}>
+              <DialogActions>
+                <TextField
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="Email Address"
+                  type="email"
+                  fullWidth
+                />
+                <Button onClick={this.handleClose} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={this.handleSubmit} color="primary">
+                  Subscribe
+                </Button>
+              </DialogActions>
+            </form>
+          </DialogContent>
         </Dialog>
       </div>
     );

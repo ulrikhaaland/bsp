@@ -372,7 +372,6 @@ class Login extends React.Component {
         margin="dense"
         id="email"
         label={this.state.emailLabel}
-        type="email"
         name="email"
         fullWidth
         style={{
@@ -441,7 +440,7 @@ class Login extends React.Component {
               To subscribe to this website, please enter your email address
               here. We will send updates occasionally.
             </DialogContentText> */}
-            <form onSubmit={this.login}>
+            <form onSubmit={this.handleRequest.bind()}>
               <DialogActions
                 classes={{
                   root: classes.content
@@ -454,7 +453,6 @@ class Login extends React.Component {
                 <button
                   id="submitBtn"
                   type="submit"
-                  onClick={this.handleRequest.bind()}
                   style={{
                     background: "none",
                     color: "inherit",

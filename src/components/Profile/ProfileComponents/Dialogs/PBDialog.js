@@ -38,7 +38,7 @@ const styles = theme => ({
     color: "#9e9e9e",
     fontFamily: "inherit",
     fontSize: 12,
-    marginBottom: 20
+    width: 312
   },
   underline: {
     "&:hover": {
@@ -81,13 +81,30 @@ const styles = theme => ({
 });
 
 class PBDialog extends React.Component {
-  state = {
-    open: true,
-    bet: {
-      amount: 300,
-      sport: "football"
-    }
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: true,
+      name: "",
+      bet: {
+        amount: 300,
+        sport: "football"
+      }
+    };
+    this.createPB = this.createPB.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  createPB() {
+    fire
+      .firestore()
+      .collection(`users/${this.props.uid}/playbooks`)
+      .add({
+        name: this.state.name
+      });
+    this.handleClose();
+    this.props.return(this.state.name);
+  }
 
   handleClickOpen = () => {
     this.setState({ open: true });
@@ -108,6 +125,10 @@ class PBDialog extends React.Component {
         ...this.state.bet
       });
   };
+
+  handleChange(e) {
+    this.setState({ name: e.target.value });
+  }
 
   render() {
     const { classes } = this.props;
@@ -141,38 +162,39 @@ class PBDialog extends React.Component {
             >
               Please create a playbook before adding your bets, e.g. "Football"
             </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Name"
-              type="name"
-              fullWidth
-              InputLabelProps={{
-                classes: {
-                  root: classes.cssLabel,
-                  focused: classes.cssFocused
-                }
-              }}
-              InputProps={{
-                classes: {
-                  root: classes.cssOutlinedInput,
-                  focused: classes.cssFocused,
-                  underline: classes.underline
-                }
-              }}
-            />
           </DialogContent>
-          <form onSubmit={null}>
+          <form onSubmit={this.createPB}>
             <DialogActions
               classes={{
                 root: classes.content
               }}
             >
+              <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label="Name"
+                type="name"
+                fullWidth
+                required
+                onChange={this.handleChange}
+                InputLabelProps={{
+                  classes: {
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused
+                  }
+                }}
+                InputProps={{
+                  classes: {
+                    root: classes.cssOutlinedInput,
+                    focused: classes.cssFocused,
+                    underline: classes.underline
+                  }
+                }}
+              />
               <button
                 id="submitBtn"
                 type="submit"
-                onClick={null}
                 style={{
                   background: "none",
                   color: "inherit",
@@ -191,18 +213,18 @@ class PBDialog extends React.Component {
                   fontSize={20}
                 />
               </button>
-              <Button
-                onClick={this.handleClose}
-                style={{
-                  color: "white",
-                  fontFamily: "inherit",
-                  marginBottom: 10
-                }}
-              >
-                Cancel
-              </Button>
             </DialogActions>
           </form>
+          <Button
+            onClick={this.handleClose}
+            style={{
+              color: "white",
+              fontFamily: "inherit",
+              marginBottom: 10
+            }}
+          >
+            Cancel
+          </Button>
         </Dialog>
       </div>
     );

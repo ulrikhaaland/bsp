@@ -56,7 +56,7 @@ class Profile extends Component {
   }
 
   returnDialog() {
-    if (this.state.isOpen && this.state.playbooks.length > 1) {
+    if (this.state.isOpen && this.state.playbooks.length > 0) {
       return (
         <BetDialog
           action={() => this.setState({ isOpen: !this.state.isOpen })}
@@ -65,7 +65,14 @@ class Profile extends Component {
     } else if (this.state.isOpen) {
       return (
         <PBDialog
-          action={() => this.setState({ isOpen: !this.state.isOpen })}
+          action={() => {
+            this.setState({ isOpen: !this.state.isOpen });
+          }}
+          uid={this.state.user.uid}
+          return={val => {
+            this.state.playbooks.push(val);
+            this.setState({ isOpen: true });
+          }}
         />
       );
     }
@@ -196,7 +203,7 @@ class Profile extends Component {
               <div className="profile_section">
                 <div className="not_info">
                   <img className="person" src={Person} alt="person" />
-                  <IconButton className="settings_btn">
+                  <IconButton className="settings_btn" onClick={this.logout}>
                     <SettingsBtn
                       style={{ color: "white", transform: "scale(1.5)" }}
                     />
@@ -240,7 +247,11 @@ class Profile extends Component {
                     <MdClose style={{ fontSize: 30 }} nativeColor="black" />
                   }
                   backgroundColor="#FCA311"
-                  onClick={() => this.setState({ isOpen: !this.state.isOpen })}
+                  onClick={() => {
+                    if (!this.state.isLoading) {
+                      this.setState({ isOpen: !this.state.isOpen });
+                    }
+                  }}
                   size={56}
                 />
               </FloatingMenu>
