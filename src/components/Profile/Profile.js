@@ -66,6 +66,7 @@ class Profile extends Component {
     } else if (this.state.isOpen) {
       return (
         <PBDialog
+          helperText={true}
           action={() => {
             this.setState({ isOpen: !this.state.isOpen });
           }}

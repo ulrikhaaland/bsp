@@ -132,6 +132,12 @@ class PBDialog extends React.Component {
 
   render() {
     const { classes } = this.props;
+
+    let helperText;
+    if (this.props.helperText) {
+      helperText =
+        'Please create a playbook before adding your bets, e.g. "Football"';
+    }
     return (
       <div>
         <Dialog
@@ -160,7 +166,7 @@ class PBDialog extends React.Component {
                 root: classes.p
               }}
             >
-              Please create a playbook before adding your bets, e.g. "Football"
+              {helperText}
             </DialogContentText>
           </DialogContent>
           <form onSubmit={this.createPB}>

@@ -8,16 +8,19 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import fire from "../../../../db/fire";
-import CancelBtn from "@material-ui/icons/Cancel";
+import CancelBtn from "@material-ui/icons/AddCircle";
 import MenuItem from "@material-ui/core/MenuItem";
 import DateFnsUtils from "@date-io/date-fns";
 import Grid from "@material-ui/core/Grid";
 import { createMuiTheme } from "@material-ui/core/styles";
+import IconButton from "@material-ui/core/IconButton";
 import {
   MuiPickersUtilsProvider,
   TimePicker,
   DatePicker
 } from "material-ui-pickers";
+import PrimaryBtn from "../../../Widgets/PrimaryButton";
+import PlayBookComponent from "./PBDialog";
 
 const muiTheme = createMuiTheme({
   palette: {
@@ -38,12 +41,15 @@ const styles = theme => ({
     color: "#14213D",
     fontSize: 30
   },
-
+  helperText: {
+    color: "#9e9e9e",
+    fontSize: 12
+  },
   title: {
     "& h2": {
       color: "white",
       fontFamily: "inherit",
-      fontSize: 20,
+      fontSize: 24,
       textAlign: "center"
     }
   },
@@ -67,9 +73,6 @@ const styles = theme => ({
     textOverflow: "ellipsis !important",
     "&$cssFocused": {
       color: "#FCA311"
-    },
-    "&$helperText": {
-      color: "white"
     }
   },
   cssFocused: {},
@@ -112,12 +115,14 @@ class BetDialog extends React.Component {
       quickColor: "#9e9e9e",
       playbook: "",
       playbookList: [],
-      selectedDate: new Date()
+      selectedDate: new Date(),
+      playbookIsOpen: false
     };
     this.changeFormType = this.changeFormType.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.getPlaybooks = this.getPlaybooks.bind(this);
     this.getPlaybooks();
+    this.newPlaybook = this.newPlaybook.bind(this);
   }
 
   handleChange = name => event => {
@@ -126,8 +131,13 @@ class BetDialog extends React.Component {
     });
   };
 
+  newPlaybook() {
+    if (this.state.playbookIsOpen) return <PlayBookComponent />;
+  }
+
   handleDateChange = date => {
     this.setState({ selectedDate: date });
+    console.log(this.state.selectedDate);
   };
 
   handleClickOpen = () => {
@@ -207,6 +217,25 @@ class BetDialog extends React.Component {
   render() {
     const { classes } = this.props;
     const { selectedDate } = this.state;
+
+    let newPlaybook;
+
+    if (this.state.playbookIsOpen) {
+      newPlaybook = (
+        <PlayBookComponent
+          return={val => {
+            this.state.playbookList.push({
+              value: val,
+              label: val
+            });
+          }}
+          action={() => {
+            this.setState({ playbookIsOpen: !this.state.playbookIsOpen });
+          }}
+        />
+      );
+    }
+
     return (
       <div>
         <Dialog
@@ -326,14 +355,14 @@ class BetDialog extends React.Component {
             <div
               style={{
                 marginTop: 15,
-                marginBottom: 5,
+                marginBottom: 15,
                 width: "100%",
                 borderStyle: "none none solid none",
                 borderColor: "#E5E5E5",
                 borderWidth: 1
               }}
             />
-            <form onSubmit={null}>
+            <form onSubmit={this.createGame}>
               <div
                 style={{
                   display: "table",
@@ -472,6 +501,18 @@ class BetDialog extends React.Component {
                       </MenuItem>
                     ))}
                   </TextField>
+                  <IconButton
+                    onClick={() => this.setState({ playbookIsOpen: true })}
+                    style={{
+                      position: "absolute",
+                      float: "right",
+                      top: "20%",
+                      color: "white",
+                      transform: "scale(1.5)"
+                    }}
+                  >
+                    <CancelBtn />
+                  </IconButton>
                 </div>
               </div>
               <div
@@ -658,10 +699,10 @@ class BetDialog extends React.Component {
                     margin="dense"
                     id="name"
                     label="Tags"
-                    helperText="Insert tags so other users can find your bets"
+                    helperText="Insert tags so other users can find your bets, seperate words by using a comma"
                     variant="outlined"
-                    placeholder="Unibet"
-                    style={{ marginRight: 20, width: "40%" }}
+                    placeholder="football, liverpool, everton"
+                    style={{ marginRight: 20, width: "80%" }}
                     onChange={this.handleChange}
                     InputLabelProps={{
                       classes: {
@@ -677,21 +718,56 @@ class BetDialog extends React.Component {
                         input: classes.input
                       }
                     }}
+                    FormHelperTextProps={{
+                      classes: {
+                        root: classes.helperText
+                      }
+                    }}
                   />
                 </div>
               </div>
 
-              <DialogActions>
-                <Button onClick={this.handleClose} color="primary">
+              <DialogActions
+                style={{ display: "flex", flexDirection: "column" }}
+              >
+                <button
+                  id="submitBtn"
+                  type="submit"
+                  style={{
+                    background: "none",
+                    color: "inherit",
+                    border: "none",
+                    margin: 20,
+                    font: "inherit",
+                    cursor: "pointer",
+                    outline: "inherit",
+                    display: "inline-block"
+                  }}
+                >
+                  <PrimaryBtn
+                    to={"undefined"}
+                    text="Create"
+                    heigth={30}
+                    width={260}
+                    fontSize={20}
+                  />
+                </button>
+                <Button
+                  onClick={this.handleClose}
+                  style={{
+                    color: "white",
+                    fontSize: 15,
+                    fontFamily: "Inherit",
+                    display: "inline-block"
+                  }}
+                >
                   Cancel
-                </Button>
-                <Button onClick={this.handleSubmit} color="primary">
-                  Subscribe
                 </Button>
               </DialogActions>
             </form>
           </DialogContent>
         </Dialog>
+        {newPlaybook}
       </div>
     );
   }
