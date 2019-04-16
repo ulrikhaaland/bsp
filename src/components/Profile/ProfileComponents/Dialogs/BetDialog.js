@@ -14,9 +14,11 @@ const styles = theme => ({
   container: {
     background: "#14213D",
     padding: "none",
-    width: 755
+    width: 860
   },
-  content: {},
+  margin: {
+    margin: theme.spacing.unit
+  },
   select: {
     color: "#14213D",
     fontSize: 30
@@ -44,39 +46,52 @@ const styles = theme => ({
   },
 
   cssLabel: {
-    fontSize: 20,
+    fontSize: 15,
     color: "white",
     "&$cssFocused": {
       color: "#FCA311"
+    },
+    "&$placeholder": {
+      color: "white"
     }
   },
-  cssFocused: {
-    fontSize: 20
+  cssFocused: {},
+  cssUnderline: {
+    "&:after": {
+      borderBottomColor: "#FCA311"
+    }
   },
   cssOutlinedInput: {
-    color: "white",
-    fontSize: 16,
     "&$cssFocused $notchedOutline": {
       borderColor: "#FCA311"
     }
   },
-  notchedOutline: {},
-  cssUnderline: {
-    color: "white",
-    "&:after": {
-      borderBottomColor: "#FCA311"
+  input: {
+    "&::placeholder": {
+      textOverflow: "ellipsis !important",
+      color: "white",
+      fontSize: 12
     }
-  }
+  },
+  notchedOutline: {}
 });
 
 class BetDialog extends React.Component {
-  state = {
-    open: true,
-    bet: {
-      amount: 300,
-      sport: "football"
-    }
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: true,
+      bet: {
+        amount: 300,
+        sport: "football"
+      },
+      inputColor: "#FCA311",
+      connectColor: "#9e9e9e",
+      quickColor: "#9e9e9e"
+    };
+    this.changeFormType = this.changeFormType.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
 
   handleClickOpen = () => {
     this.setState({ open: true });
@@ -98,11 +113,49 @@ class BetDialog extends React.Component {
       });
   };
 
+  handleChange(e) {
+    this.setState({ name: e.target.value });
+  }
+
+  changeFormType(e) {
+    switch (e) {
+      case "input":
+        {
+          this.setState({
+            inputColor: "#FCA311",
+            connectColor: "#9e9e9e",
+            quickColor: "#9e9e9e"
+          });
+        }
+        break;
+      case "connect":
+        {
+          this.setState({
+            inputColor: "#9e9e9e",
+            connectColor: "#FCA311",
+            quickColor: "#9e9e9e"
+          });
+        }
+        break;
+      case "quick":
+        {
+          this.setState({
+            inputColor: "#9e9e9e",
+            connectColor: "#9e9e9e",
+            quickColor: "#FCA311"
+          });
+        }
+        break;
+    }
+  }
+
   render() {
     const { classes } = this.props;
     return (
       <div>
         <Dialog
+          disableBackdropClick={true}
+          disableEscapeKeyDown={true}
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
@@ -135,13 +188,15 @@ class BetDialog extends React.Component {
               }}
             >
               <div
+                name="input"
                 className="provide_inputs"
+                onClick={this.changeFormType.bind(this, "input")}
                 style={{
                   position: "relative",
                   display: "table-cell",
                   borderStyle: "solid solid solid solid",
                   borderWidth: 1,
-                  background: "#FCA311"
+                  background: this.state.inputColor
                 }}
               >
                 <h2
@@ -159,6 +214,7 @@ class BetDialog extends React.Component {
                 </h2>
               </div>
               <div
+                onClick={this.changeFormType.bind(this, "connect")}
                 className="provide_inputs"
                 style={{
                   position: "relative",
@@ -167,7 +223,7 @@ class BetDialog extends React.Component {
                   textAlign: "center",
                   borderStyle: "solid solid solid solid",
                   borderWidth: 1,
-                  background: "#9e9e9e"
+                  background: this.state.connectColor
                 }}
               >
                 <h2
@@ -185,6 +241,7 @@ class BetDialog extends React.Component {
               </div>
               <div
                 className="provide_inputs"
+                onClick={this.changeFormType.bind(this, "quick")}
                 style={{
                   position: "relative",
                   heigth: 50,
@@ -192,7 +249,7 @@ class BetDialog extends React.Component {
                   textAlign: "center",
                   borderStyle: "solid solid solid solid",
                   borderWidth: 1,
-                  background: "#9e9e9e"
+                  background: this.state.quickColor
                 }}
               >
                 <h2
@@ -209,16 +266,86 @@ class BetDialog extends React.Component {
                 </h2>
               </div>
             </div>
+            <div
+              style={{
+                marginTop: 15,
+                marginBottom: 5,
+                width: "100%",
+                borderStyle: "none none solid none",
+                borderColor: "#E5E5E5",
+                borderWidth: 1.5
+              }}
+            />
             <form onSubmit={null}>
+              <div
+                style={{
+                  display: "table",
+                  width: "100%",
+                  tableLayout: "fixed",
+                  height: 46,
+                  textAlign: "center"
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
+                    heigth: 50,
+                    display: "table-cell"
+                  }}
+                >
+                  <TextField
+                    className={classes.margin}
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="Game/Event"
+                    variant="outlined"
+                    placeholder="Liverpool-Everton"
+                    style={{ marginRight: 20, width: "40%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  />
+                  <TextField
+                    className={classes.margin}
+                    autoFocus
+                    margin="dense"
+                    id="name"
+                    label="What you played"
+                    variant="outlined"
+                    placeholder="Liverpool"
+                    style={{ marginRight: 20, width: "40%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline
+                      }
+                    }}
+                  />
+                </div>
+              </div>
               <DialogActions>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="name"
-                  label="Email Address"
-                  type="email"
-                  fullWidth
-                />
                 <Button onClick={this.handleClose} color="primary">
                   Cancel
                 </Button>

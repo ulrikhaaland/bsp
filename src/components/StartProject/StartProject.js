@@ -139,19 +139,19 @@ class StartProject extends Component {
                 helperText=" "
                 required
                 fullWidth
-                InputLabelProps={{
-                  classes: {
-                    root: classes.cssLabel,
-                    focused: classes.cssFocused
-                  }
-                }}
-                InputProps={{
-                  classes: {
-                    root: classes.cssOutlinedInput,
-                    focused: classes.cssFocused,
-                    underline: classes.cssUnderline
-                  }
-                }}
+                // InputLabelProps={{
+                //   classes: {
+                //     root: classes.cssLabel,
+                //     focused: classes.cssFocused
+                //   }
+                // }}
+                // InputProps={{
+                //   classes: {
+                //     root: classes.cssOutlinedInput,
+                //     focused: classes.cssFocused,
+                //     underline: classes.cssUnderline
+                //   }
+                // }}
               />
               <TextField
                 id="textField"
