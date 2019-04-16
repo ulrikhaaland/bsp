@@ -60,6 +60,7 @@ class Profile extends Component {
       return (
         <BetDialog
           action={() => this.setState({ isOpen: !this.state.isOpen })}
+          uid={this.state.user.uid}
         />
       );
     } else if (this.state.isOpen) {
@@ -221,7 +222,7 @@ class Profile extends Component {
                   style={{ background: this.state.bgFirst }}
                   onClick={this.setGameBg.bind(this, "bgFirst")}
                 >
-                  <p>Active</p>
+                  <p>In-Play</p>
                 </div>
                 <div
                   className="choose_game_secondsplit"

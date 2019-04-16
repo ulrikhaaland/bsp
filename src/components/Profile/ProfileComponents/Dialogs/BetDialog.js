@@ -9,12 +9,27 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import fire from "../../../../db/fire";
 import CancelBtn from "@material-ui/icons/Cancel";
+import MenuItem from "@material-ui/core/MenuItem";
+import DateFnsUtils from "@date-io/date-fns";
+import Grid from "@material-ui/core/Grid";
+import { createMuiTheme } from "@material-ui/core/styles";
+import {
+  MuiPickersUtilsProvider,
+  TimePicker,
+  DatePicker
+} from "material-ui-pickers";
+
+const muiTheme = createMuiTheme({
+  palette: {
+    textColor: "red"
+  }
+});
 
 const styles = theme => ({
   container: {
     background: "#14213D",
     padding: "none",
-    width: 860
+    width: 1260
   },
   margin: {
     margin: theme.spacing.unit
@@ -23,6 +38,7 @@ const styles = theme => ({
     color: "#14213D",
     fontSize: 30
   },
+
   title: {
     "& h2": {
       color: "white",
@@ -46,12 +62,13 @@ const styles = theme => ({
   },
 
   cssLabel: {
-    fontSize: 15,
+    fontSize: 16,
     color: "white",
+    textOverflow: "ellipsis !important",
     "&$cssFocused": {
       color: "#FCA311"
     },
-    "&$placeholder": {
+    "&$helperText": {
       color: "white"
     }
   },
@@ -67,13 +84,18 @@ const styles = theme => ({
     }
   },
   input: {
+    color: "white",
+    fontSize: 16,
     "&::placeholder": {
       textOverflow: "ellipsis !important",
       color: "white",
       fontSize: 12
     }
   },
-  notchedOutline: {}
+  notchedOutline: {},
+  grid: {
+    width: "60%"
+  }
 });
 
 class BetDialog extends React.Component {
@@ -87,11 +109,26 @@ class BetDialog extends React.Component {
       },
       inputColor: "#FCA311",
       connectColor: "#9e9e9e",
-      quickColor: "#9e9e9e"
+      quickColor: "#9e9e9e",
+      playbook: "",
+      playbookList: [],
+      selectedDate: new Date()
     };
     this.changeFormType = this.changeFormType.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.getPlaybooks = this.getPlaybooks.bind(this);
+    this.getPlaybooks();
   }
+
+  handleChange = name => event => {
+    this.setState({
+      [name]: event.target.value
+    });
+  };
+
+  handleDateChange = date => {
+    this.setState({ selectedDate: date });
+  };
 
   handleClickOpen = () => {
     this.setState({ open: true });
@@ -113,8 +150,26 @@ class BetDialog extends React.Component {
       });
   };
 
-  handleChange(e) {
-    this.setState({ name: e.target.value });
+  getPlaybooks() {
+    fire
+      .firestore()
+      .collection(`users/${this.props.uid}/playbooks`)
+      .get()
+      .then(qSnap => {
+        qSnap.forEach(doc => {
+          console.log(doc.data().name);
+          this.state.playbookList.push({
+            value: doc.data().name,
+            label: doc.data().name
+          });
+        });
+        this.setState({
+          playbook: this.state.playbookList[0].label
+        });
+      })
+      .catch(e => {
+        this.handleClose();
+      });
   }
 
   changeFormType(e) {
@@ -151,9 +206,11 @@ class BetDialog extends React.Component {
 
   render() {
     const { classes } = this.props;
+    const { selectedDate } = this.state;
     return (
       <div>
         <Dialog
+          maxWidth="lg"
           disableBackdropClick={true}
           disableEscapeKeyDown={true}
           open={this.state.open}
@@ -273,7 +330,7 @@ class BetDialog extends React.Component {
                 width: "100%",
                 borderStyle: "none none solid none",
                 borderColor: "#E5E5E5",
-                borderWidth: 1.5
+                borderWidth: 1
               }}
             />
             <form onSubmit={null}>
@@ -296,7 +353,6 @@ class BetDialog extends React.Component {
                 >
                   <TextField
                     className={classes.margin}
-                    autoFocus
                     margin="dense"
                     id="name"
                     label="Game/Event"
@@ -321,10 +377,9 @@ class BetDialog extends React.Component {
                   />
                   <TextField
                     className={classes.margin}
-                    autoFocus
                     margin="dense"
                     id="name"
-                    label="What you played"
+                    label="Expected outcome"
                     variant="outlined"
                     placeholder="Liverpool"
                     style={{ marginRight: 20, width: "40%" }}
@@ -339,12 +394,293 @@ class BetDialog extends React.Component {
                       classes: {
                         root: classes.cssOutlinedInput,
                         focused: classes.cssFocused,
-                        notchedOutline: classes.notchedOutline
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
                       }
                     }}
                   />
                 </div>
               </div>
+              <div
+                style={{
+                  display: "table",
+                  width: "100%",
+                  tableLayout: "fixed",
+                  height: 46,
+                  textAlign: "center"
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
+                    heigth: 50,
+                    display: "table-cell"
+                  }}
+                >
+                  <TextField
+                    className={classes.margin}
+                    margin="dense"
+                    id="name"
+                    label="Tournament/Event"
+                    variant="outlined"
+                    placeholder="Premier League"
+                    style={{ marginRight: 20, width: "40%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  />
+                  <TextField
+                    id="outlined-select-currency"
+                    select
+                    label="Playbook"
+                    className={classes.margin}
+                    value={this.state.playbook}
+                    onChange={this.handleChange("playbook")}
+                    variant="outlined"
+                    style={{ marginRight: 20, width: "40%", height: 40 }}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  >
+                    {this.state.playbookList.map(option => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "table",
+                  width: "100%",
+                  tableLayout: "fixed",
+                  height: 46,
+                  textAlign: "center"
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+
+                    width: "50%",
+                    heigth: 50,
+                    display: "table-cell"
+                  }}
+                >
+                  <TextField
+                    className={classes.margin}
+                    margin="dense"
+                    id="name"
+                    label="Stake"
+                    variant="outlined"
+                    placeholder="100"
+                    style={{ marginRight: 20, width: "30%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  />
+                  <TextField
+                    className={classes.margin}
+                    margin="dense"
+                    id="name"
+                    label="Odds"
+                    variant="outlined"
+                    placeholder="1.5"
+                    style={{ marginRight: 20, width: "30%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    position: "relative",
+                    textAlign: "start",
+                    heigth: 50,
+                    display: "table-cell",
+                    width: "50%"
+                  }}
+                >
+                  <TextField
+                    className={classes.margin}
+                    margin="dense"
+                    id="name"
+                    label="Site"
+                    variant="outlined"
+                    placeholder="Unibet"
+                    style={{ marginRight: 20, width: "40%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              <div
+                style={{
+                  display: "table",
+                  width: "100%",
+                  tableLayout: "fixed",
+                  height: 46,
+                  textAlign: "center"
+                }}
+              >
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <Grid
+                    container
+                    className={classes.grid}
+                    style={{
+                      position: "relative",
+                      textAlign: "center",
+                      width: "50%",
+                      heigth: 50,
+                      display: "table-cell"
+                    }}
+                  >
+                    <DatePicker
+                      margin="normal"
+                      label="Date"
+                      value={selectedDate}
+                      onChange={this.handleDateChange}
+                      style={{ marginRight: 30, width: "30%" }}
+                      variant="outlined"
+                      InputLabelProps={{
+                        classes: {
+                          root: classes.cssLabel,
+                          focused: classes.cssFocused
+                        }
+                      }}
+                      InputProps={{
+                        classes: {
+                          root: classes.cssOutlinedInput,
+                          focused: classes.cssFocused,
+                          notchedOutline: classes.notchedOutline,
+                          input: classes.input
+                        }
+                      }}
+                    />
+                    <TimePicker
+                      margin="normal"
+                      label="Time"
+                      variant="outlined"
+                      value={selectedDate}
+                      onChange={this.handleDateChange}
+                      style={{ marginRight: 10, width: "30%" }}
+                      InputLabelProps={{
+                        classes: {
+                          root: classes.cssLabel,
+                          focused: classes.cssFocused
+                        }
+                      }}
+                      InputProps={{
+                        classes: {
+                          root: classes.cssOutlinedInput,
+                          focused: classes.cssFocused,
+                          notchedOutline: classes.notchedOutline,
+                          input: classes.input
+                        }
+                      }}
+                    />
+                  </Grid>
+                </MuiPickersUtilsProvider>
+
+                <div
+                  style={{
+                    position: "relative",
+                    textAlign: "start",
+                    heigth: 50,
+                    display: "table-cell",
+                    width: "50%"
+                  }}
+                >
+                  <TextField
+                    className={classes.margin}
+                    margin="dense"
+                    id="name"
+                    label="Tags"
+                    helperText="Insert tags so other users can find your bets"
+                    variant="outlined"
+                    placeholder="Unibet"
+                    style={{ marginRight: 20, width: "40%" }}
+                    onChange={this.handleChange}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
               <DialogActions>
                 <Button onClick={this.handleClose} color="primary">
                   Cancel
