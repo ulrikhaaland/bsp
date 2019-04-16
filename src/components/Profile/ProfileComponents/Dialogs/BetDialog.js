@@ -122,7 +122,6 @@ class BetDialog extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.getPlaybooks = this.getPlaybooks.bind(this);
     this.getPlaybooks();
-    this.newPlaybook = this.newPlaybook.bind(this);
   }
 
   handleChange = name => event => {
@@ -130,10 +129,6 @@ class BetDialog extends React.Component {
       [name]: event.target.value
     });
   };
-
-  newPlaybook() {
-    if (this.state.playbookIsOpen) return <PlayBookComponent />;
-  }
 
   handleDateChange = date => {
     this.setState({ selectedDate: date });
@@ -223,11 +218,21 @@ class BetDialog extends React.Component {
     if (this.state.playbookIsOpen) {
       newPlaybook = (
         <PlayBookComponent
+          helperText={false}
           return={val => {
+            this.state.playbook = val;
             this.state.playbookList.push({
               value: val,
               label: val
             });
+            if (val !== null) {
+              fire
+                .firestore()
+                .collection(`users/${this.props.uid}/playbooks`)
+                .add({
+                  name: val
+                });
+            }
           }}
           action={() => {
             this.setState({ playbookIsOpen: !this.state.playbookIsOpen });
@@ -726,7 +731,57 @@ class BetDialog extends React.Component {
                   />
                 </div>
               </div>
-
+              <div
+                style={{
+                  display: "table",
+                  width: "100%",
+                  tableLayout: "fixed",
+                  height: 46,
+                  textAlign: "center"
+                }}
+              >
+                <div
+                  style={{
+                    position: "relative",
+                    textAlign: "left",
+                    width: "100%",
+                    heigth: 50,
+                    display: "table-cell",
+                    left: "7.5%"
+                  }}
+                >
+                  <TextField
+                    id="outlined-select-currency"
+                    select
+                    label="Playbook"
+                    className={classes.margin}
+                    value={this.state.playbook}
+                    onChange={this.handleChange("playbook")}
+                    variant="outlined"
+                    style={{ width: "15%", height: 40 }}
+                    InputLabelProps={{
+                      classes: {
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }
+                    }}
+                    InputProps={{
+                      classes: {
+                        root: classes.cssOutlinedInput,
+                        focused: classes.cssFocused,
+                        notchedOutline: classes.notchedOutline,
+                        input: classes.input
+                      }
+                    }}
+                  >
+                    {this.state.playbookList.map(option => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              </div>
               <DialogActions
                 style={{ display: "flex", flexDirection: "column" }}
               >
