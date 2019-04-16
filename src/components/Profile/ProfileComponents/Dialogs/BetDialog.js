@@ -744,10 +744,18 @@ class BetDialog extends React.Component {
                   style={{
                     position: "relative",
                     textAlign: "left",
-                    width: "100%",
+                    width: "6.5%",
                     heigth: 50,
-                    display: "table-cell",
-                    left: "7.5%"
+                    display: "table-cell"
+                  }}
+                />
+                <div
+                  style={{
+                    position: "relative",
+                    textAlign: "left",
+                    width: "80%",
+                    heigth: 50,
+                    display: "table-cell"
                   }}
                 >
                   <TextField
