@@ -746,14 +746,15 @@ class BetDialog extends React.Component {
                     textAlign: "left",
                     width: "6.5%",
                     heigth: 50,
-                    display: "table-cell"
+                    display: "table-cell",
+                    marginLeft: 20
                   }}
                 />
                 <div
                   style={{
                     position: "relative",
                     textAlign: "left",
-                    width: "80%",
+                    width: "80git pu%",
                     heigth: 50,
                     display: "table-cell"
                   }}
@@ -766,7 +767,7 @@ class BetDialog extends React.Component {
                     value={this.state.playbook}
                     onChange={this.handleChange("playbook")}
                     variant="outlined"
-                    style={{ width: "15%", height: 40 }}
+                    style={{ width: "16%", height: 40 }}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
