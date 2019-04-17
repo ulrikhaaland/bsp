@@ -15,14 +15,15 @@ import IconButton from "@material-ui/core/IconButton";
 import Person from "../../images/person.svg";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import GameStream from "./ProfileComponents/GameStream";
+import ProfileSettingsDialog from "./ProfileComponents/ProfileSettings";
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      active: true,
+      profileSettingsOpen: false,
       isOpen: false,
       user: null,
-      active: [],
-      all: [],
       isActive: true,
       name: "",
       desc: "",
@@ -37,6 +38,7 @@ class Profile extends Component {
     this.authListener = this.authListener.bind(this);
     this.setGameBg = this.setGameBg.bind(this);
     this.openDialog = this.openDialog.bind(this);
+    this.openSettings = this.openSettings.bind(this);
   }
 
   componentDidMount() {
@@ -46,7 +48,9 @@ class Profile extends Component {
   authListener() {
     fire.auth().onAuthStateChanged(u => {
       if (u) {
-        this.setState({ user: u });
+        this.setState({
+          user: u
+        });
         this.getUser();
         console.log(this.state.user.email);
       } else {
@@ -90,30 +94,10 @@ class Profile extends Component {
         if (doc.exists) {
           this.setState({
             name: doc.data().name,
-            desc: doc.data().description
+            desc: doc.data().description,
+            isLoading: false
           });
         }
-      });
-    fire
-      .firestore()
-      .collection(`users/${this.state.user.uid}/all`)
-      .get()
-      .then(qSnap => {
-        qSnap.forEach(doc => {
-          console.log(doc.data());
-          this.state.all.push(doc.data());
-        });
-        this.setState({ isLoading: false });
-      });
-    fire
-      .firestore()
-      .collection(`users/${this.state.user.uid}/active`)
-      .get()
-      .then(qSnap => {
-        qSnap.forEach(doc => {
-          console.log(doc.data());
-          this.state.active.push(doc.data());
-        });
       });
     fire
       .firestore()
@@ -149,12 +133,14 @@ class Profile extends Component {
     if (name === "bgFirst") {
       this.setState({
         bgFirst: "#FCA311",
-        bgSecond: "#9e9e9e"
+        bgSecond: "#9e9e9e",
+        active: true
       });
     } else if (name === "bgSecond") {
       this.setState({
         bgFirst: "#9e9e9e",
-        bgSecond: "#FCA311"
+        bgSecond: "#FCA311",
+        active: false
       });
     }
   }
@@ -163,23 +149,54 @@ class Profile extends Component {
     this.setState({ isOpen: !this.state.isOpen });
   }
 
+  openSettings() {
+    this.setState({
+      profileSettingsOpen: !this.state.profileSettingsOpen
+    });
+  }
+
   render() {
     let games;
+    let gamesActive;
+    let gamesHistory;
+    let profileSettings;
 
-    let dialog;
-
-    // if(this.state.playbooks.length > 1) {
-    //   dialog =
-    // } else {
-    //   dialog
-    // }
+    if (this.state.profileSettingsOpen) {
+      profileSettings = (
+        <ProfileSettingsDialog
+          action={this.openSettings}
+          user={this.state.user}
+          name={this.state.name}
+          desc={this.state.desc}
+        />
+      );
+    }
 
     if (this.state.user !== null) {
       console.log(this.state.user);
-      games = <GameStream gamePath={`users/${this.state.user.uid}/active`} />;
+      gamesActive = (
+        <GameStream
+          key="A"
+          gamePath={`users/${this.state.user.uid}/bets/type/active`}
+        />
+      );
     } else {
-      games = <p>32asdasd</p>;
+      gamesActive = <p />;
     }
+
+    if (this.state.user !== null) {
+      console.log(this.state.user);
+      gamesHistory = (
+        <GameStream
+          key="H"
+          gamePath={`users/${this.state.user.uid}/bets/type/history`}
+        />
+      );
+    } else {
+      gamesHistory = <p />;
+    }
+
+    this.state.active ? (games = gamesActive) : (games = gamesHistory);
 
     let loading;
 
@@ -205,7 +222,10 @@ class Profile extends Component {
               <div className="profile_section">
                 <div className="not_info">
                   <img className="person" src={Person} alt="person" />
-                  <IconButton className="settings_btn" onClick={this.logout}>
+                  <IconButton
+                    className="settings_btn"
+                    onClick={this.openSettings}
+                  >
                     <SettingsBtn
                       style={{ color: "white", transform: "scale(1.5)" }}
                     />
@@ -261,6 +281,7 @@ class Profile extends Component {
           </div>
         </div>
         {this.returnDialog()}
+        {profileSettings}
       </div>
     );
   }

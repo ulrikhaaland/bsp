@@ -19,31 +19,78 @@ class GameStream extends React.Component {
     fire
       .firestore()
       .collection(gamePath)
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          this.state.gameArray.push(doc.data());
+      .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          if (change.type === "added") {
+            this.state.gameArray.push(change.doc.data());
+            this.renderGames();
+          }
         });
-        // this.listenForNewGames(gamePath);
-        this.renderGames();
       });
   }
 
-  //   listenForNewGames(gamePath) {
-  //     fire
-  //       .firestore()
-  //       .collection(gamePath)
-  //       .onSnapshot(function(querySnapshot) {
-  //         querySnapshot.forEach(doc => {
-  //           this.state.gameArray.push(doc.data());
-  //           console.log(doc.data());
-  //         });
-  //       });
-  //   }
-
   renderGames() {
+    this.state.displayArray = [];
     const returnList = this.state.gameArray.map(item => (
-      <p style={{ color: "white" }}>{item.name}</p>
+      <div
+        style={{
+          borderStyle: "solid solid solid solid",
+          width: "inherit",
+          height: 60,
+          marginBottom: 5,
+          marginRight: "5px",
+          borderColor: "#E5E5E5",
+          borderWidth: 1
+        }}
+      >
+        <div
+          style={{
+            marginTop: 5,
+            marginBottom: 5,
+            marginRight: 5,
+            marginLeft: 5,
+            height: "100%",
+            width: "100%",
+            display: "table"
+          }}
+        >
+          <div
+            style={{
+              width: "50%",
+              height: "50%",
+              display: "table-row"
+            }}
+          >
+            <p
+              style={{
+                color: "white",
+                textAlign: "left",
+                marginRight: 5,
+                display: "table-cell"
+              }}
+            >
+              {item.game}
+            </p>
+            <p style={{ color: "#4caf50", display: "table-cell" }}>
+              {item.outcome}
+            </p>
+          </div>
+
+          <div style={{ width: "100%", height: "50%", display: "table-row" }}>
+            <p style={{ color: "white" }}>
+              {item.date
+                .toDate()
+                .toString()
+                .substring(0, 21)}
+            </p>
+            <p style={{ color: "#4caf50", display: "table-cell" }}>
+              {item.odds}
+            </p>
+          </div>
+
+          <p style={{ color: "white" }}>{console.log(item.date)}</p>
+        </div>
+      </div>
     ));
     if (returnList.length === 0) {
       returnList.push(<p>Empty</p>);

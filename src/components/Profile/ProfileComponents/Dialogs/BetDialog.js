@@ -21,12 +21,7 @@ import {
 } from "material-ui-pickers";
 import PrimaryBtn from "../../../Widgets/PrimaryButton";
 import PlayBookComponent from "./PBDialog";
-
-const muiTheme = createMuiTheme({
-  palette: {
-    textColor: "red"
-  }
-});
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const styles = theme => ({
   container: {
@@ -106,28 +101,57 @@ class BetDialog extends React.Component {
     super(props);
     this.state = {
       open: true,
+      game: "",
+      loading: false,
       bet: {
-        amount: 300,
-        sport: "football"
+        game: "",
+        outcome: "",
+        tournament: "",
+        playbook: "",
+        stake: "",
+        odds: "",
+        bookie: "",
+        date: "",
+        tags: "",
+        currency: "",
+        active: true
       },
       inputColor: "#FCA311",
       connectColor: "#9e9e9e",
       quickColor: "#9e9e9e",
       playbook: "",
       playbookList: [],
+      currencyList: [
+        {
+          value: "EURO",
+          label: "EUR"
+        }
+      ],
       selectedDate: new Date(),
       playbookIsOpen: false
     };
     this.changeFormType = this.changeFormType.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleBetChange = this.handleBetChange.bind(this);
     this.getPlaybooks = this.getPlaybooks.bind(this);
     this.getPlaybooks();
   }
 
   handleChange = name => event => {
+    console.log(event.target.value);
     this.setState({
       [name]: event.target.value
     });
+  };
+
+  handleBetChange = e => {
+    e.persist();
+    this.setState(prevState => ({
+      bet: {
+        ...prevState.bet,
+        [e.target.name]: e.target.value
+      }
+    }));
   };
 
   handleDateChange = date => {
@@ -146,12 +170,16 @@ class BetDialog extends React.Component {
   };
 
   handleSubmit = e => {
+    this.setState({ loading: true });
     e.preventDefault();
-    const userRef = fire
+    this.state.bet.date = this.state.selectedDate;
+    fire
       .firestore()
-      .collection("bets")
-      .add({
-        ...this.state.bet
+      .collection(`users/${this.props.uid}/bets/type/active`)
+      .add(this.state.bet)
+      .then(() => {
+        this.setState({ loading: false });
+        this.handleClose();
       });
   };
 
@@ -215,12 +243,31 @@ class BetDialog extends React.Component {
 
     let newPlaybook;
 
+    let isLoading;
+
+    if (this.state.loading) {
+      isLoading = (
+        <CircularProgress
+          style={{
+            zIndex: 300,
+            color: "#E5E5E5",
+            position: "absolute",
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            margin: "auto"
+          }}
+        />
+      );
+    }
+
     if (this.state.playbookIsOpen) {
       newPlaybook = (
         <PlayBookComponent
           helperText={false}
           return={val => {
-            this.state.playbook = val;
+            this.state.bet.playbook = val;
             this.state.playbookList.push({
               value: val,
               label: val
@@ -367,7 +414,7 @@ class BetDialog extends React.Component {
                 borderWidth: 1
               }}
             />
-            <form onSubmit={this.createGame}>
+            <form onSubmit={this.handleSubmit}>
               <div
                 style={{
                   display: "table",
@@ -388,12 +435,14 @@ class BetDialog extends React.Component {
                   <TextField
                     className={classes.margin}
                     margin="dense"
+                    name="game"
                     id="name"
                     label="Game/Event"
                     variant="outlined"
+                    value={this.state.bet.game}
                     placeholder="Liverpool-Everton"
                     style={{ marginRight: 20, width: "40%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -413,11 +462,13 @@ class BetDialog extends React.Component {
                     className={classes.margin}
                     margin="dense"
                     id="name"
+                    name="outcome"
                     label="Expected outcome"
                     variant="outlined"
+                    value={this.state.bet.outcome}
                     placeholder="Liverpool"
                     style={{ marginRight: 20, width: "40%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -456,11 +507,13 @@ class BetDialog extends React.Component {
                     className={classes.margin}
                     margin="dense"
                     id="name"
+                    name="tournament"
+                    value={this.state.bet.tournament}
                     label="Tournament/Event"
                     variant="outlined"
                     placeholder="Premier League"
                     style={{ marginRight: 20, width: "40%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -480,9 +533,10 @@ class BetDialog extends React.Component {
                     id="outlined-select-currency"
                     select
                     label="Playbook"
+                    name="playbook"
                     className={classes.margin}
-                    value={this.state.playbook}
-                    onChange={this.handleChange("playbook")}
+                    value={this.state.bet.playbook}
+                    onChange={this.handleBetChange}
                     variant="outlined"
                     style={{ marginRight: 20, width: "40%", height: 40 }}
                     InputLabelProps={{
@@ -543,10 +597,12 @@ class BetDialog extends React.Component {
                     margin="dense"
                     id="name"
                     label="Stake"
+                    name="stake"
+                    value={this.state.bet.stake}
                     variant="outlined"
                     placeholder="100"
                     style={{ marginRight: 20, width: "30%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -566,11 +622,13 @@ class BetDialog extends React.Component {
                     className={classes.margin}
                     margin="dense"
                     id="name"
+                    name="odds"
+                    value={this.state.bet.odds}
                     label="Odds"
                     variant="outlined"
                     placeholder="1.5"
                     style={{ marginRight: 20, width: "30%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -587,6 +645,7 @@ class BetDialog extends React.Component {
                     }}
                   />
                 </div>
+                {isLoading}
                 <div
                   style={{
                     position: "relative",
@@ -599,12 +658,14 @@ class BetDialog extends React.Component {
                   <TextField
                     className={classes.margin}
                     margin="dense"
-                    id="name"
-                    label="Site"
+                    id="bookie"
+                    label="Bookie"
+                    name="bookie"
+                    value={this.state.bet.bookie}
                     variant="outlined"
                     placeholder="Unibet"
                     style={{ marginRight: 20, width: "40%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -704,11 +765,13 @@ class BetDialog extends React.Component {
                     margin="dense"
                     id="name"
                     label="Tags"
+                    name="tags"
+                    value={this.state.bet.tags}
                     helperText="Insert tags so other users can find your bets, seperate words by using a comma"
                     variant="outlined"
                     placeholder="football, liverpool, everton"
                     style={{ marginRight: 20, width: "80%" }}
-                    onChange={this.handleChange}
+                    onChange={this.handleBetChange}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -731,6 +794,7 @@ class BetDialog extends React.Component {
                   />
                 </div>
               </div>
+
               <div
                 style={{
                   display: "table",
@@ -754,7 +818,7 @@ class BetDialog extends React.Component {
                   style={{
                     position: "relative",
                     textAlign: "left",
-                    width: "80git pu%",
+                    width: "80%",
                     heigth: 50,
                     display: "table-cell"
                   }}
@@ -762,12 +826,13 @@ class BetDialog extends React.Component {
                   <TextField
                     id="outlined-select-currency"
                     select
-                    label="Playbook"
+                    label="Currency"
+                    name="currency"
                     className={classes.margin}
-                    value={this.state.playbook}
-                    onChange={this.handleChange("playbook")}
+                    value={this.state.bet.currency}
+                    onChange={this.handleBetChange}
                     variant="outlined"
-                    style={{ width: "16%", height: 40 }}
+                    style={{ width: "16.4%", height: 40 }}
                     InputLabelProps={{
                       classes: {
                         root: classes.cssLabel,
@@ -783,7 +848,7 @@ class BetDialog extends React.Component {
                       }
                     }}
                   >
-                    {this.state.playbookList.map(option => (
+                    {this.state.currencyList.map(option => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
                       </MenuItem>
