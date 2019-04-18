@@ -19,6 +19,7 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import Switch from "@material-ui/core/Switch";
 import WifiIcon from "@material-ui/icons/Visibility";
 import MenuItem from "@material-ui/core/MenuItem";
+import fire from "../../../db/fire";
 
 const styles = {
   primaryText: {
@@ -28,6 +29,11 @@ const styles = {
   },
   secondaryText: {
     color: "white",
+    fontFamily: "inherit",
+    fontSize: 15
+  },
+  redText: {
+    color: "#f50057",
     fontFamily: "inherit",
     fontSize: 15
   },
@@ -92,7 +98,7 @@ class ProfileSettings extends React.Component {
     this.state = {
       open: true,
       user: this.props.user,
-      desc: this.props.desc,
+      description: "",
       checked: ["wifi"],
       currency: "EUR",
       currencyList: [
@@ -103,6 +109,7 @@ class ProfileSettings extends React.Component {
       ]
     };
     this.handleChange = this.handleChange.bind(this);
+    this.state.description = this.state.user.description
   }
 
   handleClickOpen = () => {
@@ -116,7 +123,7 @@ class ProfileSettings extends React.Component {
   };
 
   handleChange = e => {
-    if (e.target.name === "desc" && e.target.value.length >= 160) {
+    if (e.target.name === "description" && e.target.value.length >= 160) {
     } else {
       this.setState({
         [e.target.name]: e.target.value
@@ -139,6 +146,12 @@ class ProfileSettings extends React.Component {
       checked: newChecked
     });
   };
+
+  updateInfo() {
+    fire.firestore().collection("users").doc(this.state.user.uid).update({
+
+    })
+  }
 
   render() {
     const { classes } = this.props;
@@ -188,7 +201,7 @@ class ProfileSettings extends React.Component {
                     secondary: classes.secondaryText
                   }}
                   primary="Username"
-                  secondary={this.props.name}
+                  secondary={this.state.user.name}
                 />
               </ListItem>
               <Divider />
@@ -211,8 +224,8 @@ class ProfileSettings extends React.Component {
                   multiline={true}
                   rows={3}
                   label="Profile Description"
-                  value={this.state.desc}
-                  name="desc"
+                  value={this.state.description}
+                  name="description"
                   onChange={this.handleChange}
                   style={{ width: "40%" }}
                   InputLabelProps={{
@@ -230,7 +243,7 @@ class ProfileSettings extends React.Component {
                   }}
                 />
               </ListItem>
-              <Divider style={{ marginBottom: 120 }} />
+              <Divider style={{ marginBottom: 80}} />
               <ListItem style={{ width: "20%" }}>
                 {/* <ListItemIcon>
                   <WifiIcon
@@ -248,9 +261,9 @@ class ProfileSettings extends React.Component {
                   onChange={this.handleToggle("wifi")}
                   checked={this.state.checked.indexOf("wifi") !== -1}
                   classes={{
-                    bar: {
+                    
                       color: "#FCA311"
-                    }
+                    
                   }}
                 />
               </ListItem>
@@ -267,7 +280,7 @@ class ProfileSettings extends React.Component {
                   select
                   name="currency"
                   className={classes.margin}
-                  value="{this.state.currency}"
+                  value={this.state.currency}
                   onChange={this.handleChange}
                   style={{ width: "40%" }}
                   InputLabelProps={{
@@ -291,6 +304,30 @@ class ProfileSettings extends React.Component {
                     </MenuItem>
                   ))}
                 </TextField>
+              </ListItem>
+              <Divider style={{ marginBottom: 80}} />
+              <ListItem button>
+              <ListItemText
+              primary="Policies & Agreements"
+              classes={{
+                primary: classes.secondaryText
+              }} ></ListItemText>
+              </ListItem>
+              <Divider />
+              <ListItem button>
+              <ListItemText
+              primary="Log Out"
+              classes={{
+                primary: classes.redText
+              }} ></ListItemText>
+              </ListItem>
+              <Divider />
+              <ListItem button>
+              <ListItemText
+              primary="Delete Profile"
+              classes={{
+                primary: classes.redText
+              }} ></ListItemText>
               </ListItem>
               <Divider />
             </List>

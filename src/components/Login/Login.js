@@ -175,7 +175,9 @@ class Login extends React.Component {
                   .set({
                     name: this.state.username,
                     email: this.state.email,
-                    description: ""
+                    description: "",
+                    publicprofile: true,
+                    currency: "eur",
                   });
 
                 this.proceed();

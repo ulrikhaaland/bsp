@@ -24,9 +24,17 @@ class Profile extends Component {
       profileSettingsOpen: false,
       isOpen: false,
       user: null,
+      userInfo: {
+        uid: "",
+        name: "",
+        email: "",
+        description: "",
+        public: null,
+        currency: ""
+      },
       isActive: true,
       name: "",
-      desc: "",
+      description: "",
       isLoading: true,
       bgFirst: "#FCA311",
       bgSecond: "#9e9e9e",
@@ -49,10 +57,9 @@ class Profile extends Component {
     fire.auth().onAuthStateChanged(u => {
       if (u) {
         this.setState({
-          user: u
-        });
+          user : u
+        })
         this.getUser();
-        console.log(this.state.user.email);
       } else {
         this.setState({ user: null });
       }
@@ -94,8 +101,16 @@ class Profile extends Component {
         if (doc.exists) {
           this.setState({
             name: doc.data().name,
-            desc: doc.data().description,
-            isLoading: false
+            description: doc.data().description,
+            isLoading: false,
+            userInfo: {
+              uid: doc.id,
+              name: doc.data().name,
+              email: doc.data().email,
+              description: doc.data().description,
+              public: doc.data().publicprofile,
+              currency: doc.data().currency
+            }
           });
         }
       });
@@ -112,7 +127,6 @@ class Profile extends Component {
 
   logout(e) {
     e.preventDefault();
-    console.log("worksss");
     fire
       .auth()
       .signOut()
@@ -165,9 +179,9 @@ class Profile extends Component {
       profileSettings = (
         <ProfileSettingsDialog
           action={this.openSettings}
-          user={this.state.user}
-          name={this.state.name}
-          desc={this.state.desc}
+          user={this.state.userInfo}
+          
+          onUpdate={this.getUser}
         />
       );
     }
@@ -233,7 +247,7 @@ class Profile extends Component {
                 </div>
                 <div className="profile_info">
                   <p style={{ color: "#9e9e9e" }}>{"@" + this.state.name}</p>
-                  <p style={{ color: "white" }}>{this.state.desc}</p>
+                  <p style={{ color: "white" }}>{this.state.description}</p>
                 </div>
               </div>
               <div className="border_profile" />

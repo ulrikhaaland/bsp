@@ -226,7 +226,8 @@ class PBDialog extends React.Component {
             style={{
               color: "white",
               fontFamily: "inherit",
-              marginBottom: 10
+              marginBottom: 10,
+              fontSize: 12
             }}
           >
             Cancel
