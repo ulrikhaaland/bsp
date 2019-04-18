@@ -176,8 +176,8 @@ class Login extends React.Component {
                     name: this.state.username,
                     email: this.state.email,
                     description: "",
-                    publicprofile: true,
-                    currency: "eur",
+                    public: true,
+                    currency: "eur"
                   });
 
                 this.proceed();

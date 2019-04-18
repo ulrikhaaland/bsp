@@ -20,6 +20,8 @@ import Switch from "@material-ui/core/Switch";
 import WifiIcon from "@material-ui/icons/Visibility";
 import MenuItem from "@material-ui/core/MenuItem";
 import fire from "../../../db/fire";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import WarningDialog from "./Dialogs/WarningDialog";
 
 const styles = {
   primaryText: {
@@ -96,11 +98,14 @@ class ProfileSettings extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      deleteDialogOpen: false,
+      logoutDialogOpen: false,
       open: true,
-      user: this.props.user,
+      user: props.user,
       description: "",
       checked: ["wifi"],
-      currency: "EUR",
+      currency: "",
+      isLoading: false,
       currencyList: [
         {
           label: "EUR",
@@ -109,7 +114,10 @@ class ProfileSettings extends React.Component {
       ]
     };
     this.handleChange = this.handleChange.bind(this);
-    this.state.description = this.state.user.description
+    this.handleToggle = this.handleToggle.bind(this);
+    this.updateInfo = this.updateInfo.bind(this);
+    this.logout = this.logout.bind(this);
+    this.state.description = this.state.user.description;
   }
 
   handleClickOpen = () => {
@@ -131,30 +139,97 @@ class ProfileSettings extends React.Component {
     }
   };
 
-  handleToggle = value => () => {
-    const { checked } = this.state;
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    this.setState({
-      checked: newChecked
-    });
-  };
+  handleToggle() {
+    this.setState(prevState => ({
+      user: {
+        ...prevState.user,
+        public: !prevState.user.public
+      }
+    }));
+  }
 
   updateInfo() {
-    fire.firestore().collection("users").doc(this.state.user.uid).update({
+    console.log(this.state.description);
+    this.setState({
+      isLoading: true
+    });
+    this.state.user.description = this.state.description;
+    if (this.state.currency !== "" && this.state.currency !== null) {
+      this.state.user.currency = this.state.currency;
+    }
 
-    })
+    fire
+      .firestore()
+      .collection("users")
+      .doc(this.state.user.uid)
+      .update(this.state.user)
+      .then(() => {
+        this.props.onUpdate();
+        this.handleClose();
+        this.props.action();
+        this.state.isLoading = false;
+      });
+  }
+
+  logout(e) {
+    e.preventDefault();
+    this.handleClose();
+    this.props.action();
+    this.props.onLogout();
   }
 
   render() {
     const { classes } = this.props;
+
+    let deleteDialog;
+    let logoutDialog;
+    let loading;
+
+    if (this.state.isLoading) {
+      loading = (
+        <CircularProgress
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            color: "#E5E5E5"
+          }}
+        />
+      );
+    }
+
+    if (this.state.deleteDialogOpen) {
+      deleteDialog = (
+        <WarningDialog
+          key="d"
+          text="Delete Profile?"
+          btnText="Delete"
+          helperText="This is a permanent action, your profile can't be restored."
+          action={() => {
+            this.setState({
+              deleteDialogOpen: false
+            });
+          }}
+        />
+      );
+    }
+
+    if (this.state.logoutDialogOpen) {
+      logoutDialog = (
+        <WarningDialog
+          key="l"
+          text="Log Out?"
+          btnText="Log Out"
+          helperText="Are you sure you want to log out?"
+          action={() => {
+            this.setState({
+              logoutDialogOpen: false
+            });
+          }}
+          event={this.logout}
+        />
+      );
+    }
     return (
       <div>
         <Dialog
@@ -166,6 +241,7 @@ class ProfileSettings extends React.Component {
           onClose={this.handleClose}
           TransitionComponent={Transition}
         >
+          {loading}
           <AppBar className={classes.appBar}>
             <Toolbar>
               <IconButton
@@ -185,7 +261,7 @@ class ProfileSettings extends React.Component {
               </Typography>
               <Button
                 color="inherit"
-                onClick={this.handleClose}
+                onClick={this.updateInfo}
                 style={{ fontFamily: "inherit", fontSize: 20 }}
               >
                 save
@@ -243,7 +319,7 @@ class ProfileSettings extends React.Component {
                   }}
                 />
               </ListItem>
-              <Divider style={{ marginBottom: 80}} />
+              <Divider style={{ marginBottom: 80 }} />
               <ListItem style={{ width: "20%" }}>
                 {/* <ListItemIcon>
                   <WifiIcon
@@ -258,12 +334,10 @@ class ProfileSettings extends React.Component {
                 />
 
                 <Switch
-                  onChange={this.handleToggle("wifi")}
-                  checked={this.state.checked.indexOf("wifi") !== -1}
+                  onChange={this.handleToggle}
+                  checked={this.state.user.public}
                   classes={{
-                    
-                      color: "#FCA311"
-                    
+                    color: "#FCA311"
                   }}
                 />
               </ListItem>
@@ -276,13 +350,12 @@ class ProfileSettings extends React.Component {
                   }}
                 />
                 <TextField
-                  id="outlined-select-currency"
+                  id="selectcurrency"
                   select
                   name="currency"
-                  className={classes.margin}
                   value={this.state.currency}
                   onChange={this.handleChange}
-                  style={{ width: "40%" }}
+                  style={{ width: "50%" }}
                   InputLabelProps={{
                     classes: {
                       root: classes.cssLabel,
@@ -305,34 +378,53 @@ class ProfileSettings extends React.Component {
                   ))}
                 </TextField>
               </ListItem>
-              <Divider style={{ marginBottom: 80}} />
+              <Divider style={{ marginBottom: 80 }} />
               <ListItem button>
-              <ListItemText
-              primary="Policies & Agreements"
-              classes={{
-                primary: classes.secondaryText
-              }} ></ListItemText>
+                <ListItemText
+                  primary="Policies & Agreements"
+                  classes={{
+                    primary: classes.secondaryText
+                  }}
+                />
               </ListItem>
               <Divider />
-              <ListItem button>
-              <ListItemText
-              primary="Log Out"
-              classes={{
-                primary: classes.redText
-              }} ></ListItemText>
+              <ListItem
+                button
+                onClick={() => {
+                  this.setState({
+                    logoutDialogOpen: true
+                  });
+                }}
+              >
+                <ListItemText
+                  primary="Log Out"
+                  classes={{
+                    primary: classes.redText
+                  }}
+                />
               </ListItem>
               <Divider />
-              <ListItem button>
-              <ListItemText
-              primary="Delete Profile"
-              classes={{
-                primary: classes.redText
-              }} ></ListItemText>
+              <ListItem
+                button
+                onClick={() => {
+                  this.setState({
+                    deleteDialogOpen: true
+                  });
+                }}
+              >
+                <ListItemText
+                  primary="Delete Profile"
+                  classes={{
+                    primary: classes.redText
+                  }}
+                />
               </ListItem>
               <Divider />
             </List>
           </div>
         </Dialog>
+        {deleteDialog}
+        {logoutDialog}
       </div>
     );
   }

@@ -57,8 +57,8 @@ class Profile extends Component {
     fire.auth().onAuthStateChanged(u => {
       if (u) {
         this.setState({
-          user : u
-        })
+          user: u
+        });
         this.getUser();
       } else {
         this.setState({ user: null });
@@ -108,7 +108,7 @@ class Profile extends Component {
               name: doc.data().name,
               email: doc.data().email,
               description: doc.data().description,
-              public: doc.data().publicprofile,
+              public: doc.data().public,
               currency: doc.data().currency
             }
           });
@@ -125,8 +125,7 @@ class Profile extends Component {
       });
   }
 
-  logout(e) {
-    e.preventDefault();
+  logout() {
     fire
       .auth()
       .signOut()
@@ -180,8 +179,11 @@ class Profile extends Component {
         <ProfileSettingsDialog
           action={this.openSettings}
           user={this.state.userInfo}
-          
-          onUpdate={this.getUser}
+          onUpdate={() => {
+            this.getUser();
+            this.openSettings();
+          }}
+          onLogout={this.logout}
         />
       );
     }

@@ -5,6 +5,19 @@ import { width } from "window-size";
 
 class PrimaryButton extends React.Component {
   render() {
+    let color;
+    let textColor;
+    console.log(this.props.color);
+    if (this.props.color !== undefined) {
+      color = this.props.color;
+    } else {
+      color = "#FCA311";
+    }
+    if (this.props.textColor !== undefined) {
+      textColor = this.props.textColor;
+    } else {
+      textColor = "#14213D";
+    }
     return (
       <div>
         <Fab
@@ -12,8 +25,8 @@ class PrimaryButton extends React.Component {
           variant="extended"
           aria-label="Add"
           style={{
-            backgroundColor: "#FCA311",
-            color: "#14213D",
+            backgroundColor: color,
+            color: textColor,
 
             zIndex: "100",
             fontFamily: "inherit",
