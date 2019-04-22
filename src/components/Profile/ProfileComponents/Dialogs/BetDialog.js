@@ -317,7 +317,7 @@ class BetDialog extends React.Component {
               root: classes.content
             }}
           >
-            <div
+            {/* <div
               style={{
                 display: "table",
                 width: "100%",
@@ -403,8 +403,8 @@ class BetDialog extends React.Component {
                   Quick
                 </h2>
               </div>
-            </div>
-            <div
+            </div> */}
+            {/* <div
               style={{
                 marginTop: 15,
                 marginBottom: 15,
@@ -413,7 +413,7 @@ class BetDialog extends React.Component {
                 borderColor: "#E5E5E5",
                 borderWidth: 1
               }}
-            />
+            /> */}
             <form onSubmit={this.handleSubmit}>
               <div
                 style={{

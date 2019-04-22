@@ -117,6 +117,7 @@ class ProfileSettings extends React.Component {
     this.handleToggle = this.handleToggle.bind(this);
     this.updateInfo = this.updateInfo.bind(this);
     this.logout = this.logout.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
     this.state.description = this.state.user.description;
   }
 
@@ -172,10 +173,44 @@ class ProfileSettings extends React.Component {
   }
 
   logout(e) {
-    e.preventDefault();
+    
     this.handleClose();
     this.props.action();
     this.props.onLogout();
+  }
+
+  deleteUser() {
+    this.setState({ isLoading: true });
+
+    fire
+      .firestore()
+      .collection("users")
+      .doc(this.state.user.uid)
+      .delete()
+      .then(() => {
+        fire
+          .auth()
+          .currentUser.delete()
+          .then(() => {
+            fire
+              .firestore()
+              .collection("usernames")
+              .where("username", "==", this.state.user.name)
+              .get()
+              .then(qSnap => {
+                qSnap.forEach(doc => {
+                  fire
+                    .firestore()
+                    .collection("usernames")
+                    .doc(doc.id)
+                    .delete();
+                });
+              });
+          });
+        this.props.action();
+        this.props.onLogout();
+        this.handleClose();
+      });
   }
 
   render() {
@@ -210,6 +245,7 @@ class ProfileSettings extends React.Component {
               deleteDialogOpen: false
             });
           }}
+          event={this.deleteUser}
         />
       );
     }

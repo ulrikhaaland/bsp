@@ -148,7 +148,10 @@ class WarningDialog extends React.Component {
           >
             <button
               id="submitBtn"
-              onClick={this.props.event}
+              onClick={() => {
+                this.handleClose()
+                this.props.event()
+              }}
               style={{
                 background: "none",
                 color: "#f50057",
